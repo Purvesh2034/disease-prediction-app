@@ -83,14 +83,14 @@ for col in X.columns:
 # Ensure correct column order
 input_data = input_data[X.columns]
 
-    prediction = model.predict(input_data)[0]
-    probability = model.predict_proba(input_data)[0][1]
+prediction = model.predict(input_data)[0]
+probability = model.predict_proba(input_data)[0][1]
 
-    st.subheader("📊 Result")
+st.subheader("📊 Result")
 
-    if prediction == 1:
-        st.error(f"⚠️ High Risk of Heart Disease\n\nProbability: {probability:.2f}")
-    else:
-        st.success(f"✅ Low Risk of Heart Disease\n\nProbability: {probability:.2f}")
+if prediction == 1:
+    st.error(f"⚠️ High Risk of Heart Disease\n\nProbability: {probability:.2f}")
+else:
+    st.success(f"✅ Low Risk of Heart Disease\n\nProbability: {probability:.2f}")
 
-    st.progress(int(probability * 100))
+st.progress(int(probability * 100))
