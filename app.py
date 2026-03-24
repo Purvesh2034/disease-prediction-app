@@ -56,11 +56,32 @@ thal = 2
 
 # Prediction
 if st.button("🔍 Predict"):
-    input_data = pd.DataFrame([[
-        age, sex, cp, trestbps, chol, fbs,
-        restecg, thalach, exang, oldpeak,
-        slope, ca, thal
-    ]], columns=X.columns)
+input_dict = {
+    'age': age,
+    'sex': sex,
+    'cp': cp,
+    'trestbps': trestbps,
+    'chol': chol,
+    'fbs': fbs,
+    'restecg': restecg,
+    'thalach': thalach,
+    'exang': exang,
+    'oldpeak': oldpeak,
+    'slope': slope,
+    'ca': ca,
+    'thal': thal
+}
+
+# Create dataframe safely
+input_data = pd.DataFrame([input_dict])
+
+# Add missing columns if any
+for col in X.columns:
+    if col not in input_data.columns:
+        input_data[col] = 0
+
+# Ensure correct column order
+input_data = input_data[X.columns]
 
     prediction = model.predict(input_data)[0]
     probability = model.predict_proba(input_data)[0][1]
