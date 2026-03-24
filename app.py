@@ -3,12 +3,12 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 
-# Page config
-st.set_page_config(page_title="Disease Prediction App", layout="centered")
+# Page setup
+st.set_page_config(page_title="Disease Prediction", layout="centered")
 
 # Title
 st.title("💓 AI-Based Disease Risk Prediction System")
-st.markdown("Enter patient details to predict heart disease risk.")
+st.write("Enter patient details to predict heart disease risk.")
 
 # Load dataset
 df = pd.read_csv("heart.csv")
@@ -22,7 +22,7 @@ for col in df.columns:
 # Convert target to binary
 df['num'] = df['num'].apply(lambda x: 1 if x > 0 else 0)
 
-# Features & Target
+# Features & target
 X = df.drop('num', axis=1)
 y = df['num']
 
@@ -30,7 +30,8 @@ y = df['num']
 model = RandomForestClassifier()
 model.fit(X, y)
 
-# Input section
+# ---------------- INPUT SECTION ---------------- #
+
 st.header("🧾 Patient Details")
 
 col1, col2 = st.columns(2)
@@ -49,48 +50,52 @@ with col2:
     exang = st.selectbox("Exercise Induced Angina (1 = Yes)", [0, 1])
     oldpeak = st.slider("Oldpeak", 0.0, 6.0, 1.0)
 
-# Extra features (fixed values for simplicity)
+# Fixed values (for simplicity)
 slope = 1
 ca = 0
 thal = 2
 
-# Prediction
+# ---------------- PREDICTION ---------------- #
+
 if st.button("🔍 Predict"):
-   input_dict = {
-    'age': age,
-    'sex': sex,
-    'cp': cp,
-    'trestbps': trestbps,
-    'chol': chol,
-    'fbs': fbs,
-    'restecg': restecg,
-    'thalach': thalach,
-    'exang': exang,
-    'oldpeak': oldpeak,
-    'slope': slope,
-    'ca': ca,
-    'thal': thal
-}
 
-# Create dataframe safely
-input_data = pd.DataFrame([input_dict])
+    try:
+        # Input dictionary
+        input_dict = {
+            'age': age,
+            'sex': sex,
+            'cp': cp,
+            'trestbps': trestbps,
+            'chol': chol,
+            'fbs': fbs,
+            'restecg': restecg,
+            'thalach': thalach,
+            'exang': exang,
+            'oldpeak': oldpeak,
+            'slope': slope,
+            'ca': ca,
+            'thal': thal
+        }
 
-# Add missing columns if any
-for col in X.columns:
-    if col not in input_data.columns:
-        input_data[col] = 0
+        # Convert to DataFrame
+        input_data = pd.DataFrame([input_dict])
 
-# Ensure correct column order
-input_data = input_data[X.columns]
+        # Match with training columns
+        input_data = input_data.reindex(columns=X.columns, fill_value=0)
 
-prediction = model.predict(input_data)[0]
-probability = model.predict_proba(input_data)[0][1]
+        # Prediction
+        prediction = model.predict(input_data)[0]
+        probability = model.predict_proba(input_data)[0][1]
 
-st.subheader("📊 Result")
+        # Output
+        st.subheader("📊 Result")
 
-if prediction == 1:
-    st.error(f"⚠️ High Risk of Heart Disease\n\nProbability: {probability:.2f}")
-else:
-    st.success(f"✅ Low Risk of Heart Disease\n\nProbability: {probability:.2f}")
+        if prediction == 1:
+            st.error(f"⚠️ High Risk of Heart Disease\n\nProbability: {probability:.2f}")
+        else:
+            st.success(f"✅ Low Risk of Heart Disease\n\nProbability: {probability:.2f}")
 
-st.progress(int(probability * 100))
+        st.progress(int(probability * 100))
+
+    except Exception as e:
+        st.error(f"Error: {e}")
