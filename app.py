@@ -56,7 +56,7 @@ thal = 2
 
 # Prediction
 if st.button("🔍 Predict"):
-input_dict = {
+   input_dict = {
     'age': age,
     'sex': sex,
     'cp': cp,
