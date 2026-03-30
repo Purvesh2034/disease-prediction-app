@@ -3,26 +3,26 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 
-# Page setup
-st.set_page_config(page_title="Disease Prediction", layout="centered")
+# Page config
+st.set_page_config(page_title="Disease Prediction", layout="wide")
 
 # Title
-st.title("💓 AI-Based Disease Risk Prediction System")
-st.write("Enter patient details to predict heart disease risk.")
+st.title("💓 AI-Based Heart Disease Prediction System")
+st.markdown("### Smart Healthcare using Machine Learning")
 
 # Load dataset
 df = pd.read_csv("heart.csv")
 
-# Encode categorical columns
+# Encode categorical
 le = LabelEncoder()
 for col in df.columns:
     if df[col].dtype == 'object':
         df[col] = le.fit_transform(df[col])
 
-# Convert target to binary
+# Target
 df['num'] = df['num'].apply(lambda x: 1 if x > 0 else 0)
 
-# Features & target
+# Features
 X = df.drop('num', axis=1)
 y = df['num']
 
@@ -30,72 +30,85 @@ y = df['num']
 model = RandomForestClassifier()
 model.fit(X, y)
 
-# ---------------- INPUT SECTION ---------------- #
+# ---------------- SIDEBAR INPUT ---------------- #
 
-st.header("🧾 Patient Details")
+st.sidebar.header("🧾 Enter Patient Details")
 
-col1, col2 = st.columns(2)
+age = st.sidebar.slider("Age", 20, 80, 40)
+sex = st.sidebar.selectbox("Sex", [0, 1])
+cp = st.sidebar.selectbox("Chest Pain Type", [0, 1, 2, 3])
+trestbps = st.sidebar.slider("Resting BP", 80, 200, 120)
+chol = st.sidebar.slider("Cholesterol", 100, 400, 200)
+fbs = st.sidebar.selectbox("Fasting Blood Sugar", [0, 1])
+restecg = st.sidebar.selectbox("Rest ECG", [0, 1, 2])
+thalach = st.sidebar.slider("Max Heart Rate", 60, 220, 150)
+exang = st.sidebar.selectbox("Exercise Angina", [0, 1])
+oldpeak = st.sidebar.slider("Oldpeak", 0.0, 6.0, 1.0)
 
-with col1:
-    age = st.slider("Age", 20, 80, 40)
-    sex = st.selectbox("Sex (0 = Female, 1 = Male)", [0, 1])
-    cp = st.selectbox("Chest Pain Type (0-3)", [0, 1, 2, 3])
-    trestbps = st.slider("Resting Blood Pressure", 80, 200, 120)
-    chol = st.slider("Cholesterol", 100, 400, 200)
-
-with col2:
-    fbs = st.selectbox("Fasting Blood Sugar > 120 (1 = Yes)", [0, 1])
-    restecg = st.selectbox("Rest ECG (0-2)", [0, 1, 2])
-    thalach = st.slider("Max Heart Rate", 60, 220, 150)
-    exang = st.selectbox("Exercise Induced Angina (1 = Yes)", [0, 1])
-    oldpeak = st.slider("Oldpeak", 0.0, 6.0, 1.0)
-
-# Fixed values (for simplicity)
+# Fixed values
 slope = 1
 ca = 0
 thal = 2
 
-# ---------------- PREDICTION ---------------- #
+# ---------------- MAIN OUTPUT ---------------- #
+
+st.subheader("📊 Prediction Result")
 
 if st.button("🔍 Predict"):
 
-    try:
-        # Input dictionary
-        input_dict = {
-            'age': age,
-            'sex': sex,
-            'cp': cp,
-            'trestbps': trestbps,
-            'chol': chol,
-            'fbs': fbs,
-            'restecg': restecg,
-            'thalach': thalach,
-            'exang': exang,
-            'oldpeak': oldpeak,
-            'slope': slope,
-            'ca': ca,
-            'thal': thal
-        }
+    input_dict = {
+        'age': age,
+        'sex': sex,
+        'cp': cp,
+        'trestbps': trestbps,
+        'chol': chol,
+        'fbs': fbs,
+        'restecg': restecg,
+        'thalach': thalach,
+        'exang': exang,
+        'oldpeak': oldpeak,
+        'slope': slope,
+        'ca': ca,
+        'thal': thal
+    }
 
-        # Convert to DataFrame
-        input_data = pd.DataFrame([input_dict])
+    input_data = pd.DataFrame([input_dict])
+    input_data = input_data.reindex(columns=X.columns, fill_value=0)
 
-        # Match with training columns
-        input_data = input_data.reindex(columns=X.columns, fill_value=0)
+    prediction = model.predict(input_data)[0]
+    probability = model.predict_proba(input_data)[0][1]
 
-        # Prediction
-        prediction = model.predict(input_data)[0]
-        probability = model.predict_proba(input_data)[0][1]
+    # Layout columns
+    col1, col2 = st.columns(2)
 
-        # Output
-        st.subheader("📊 Result")
-
+    with col1:
         if prediction == 1:
-            st.error(f"⚠️ High Risk of Heart Disease\n\nProbability: {probability:.2f}")
+            st.error("🔴 HIGH RISK")
         else:
-            st.success(f"✅ Low Risk of Heart Disease\n\nProbability: {probability:.2f}")
+            st.success("🟢 LOW RISK")
 
-        st.progress(int(probability * 100))
+    with col2:
+        st.metric(label="Risk Probability", value=f"{probability*100:.2f}%")
 
-    except Exception as e:
-        st.error(f"Error: {e}")
+    # Progress bar
+    st.progress(int(probability * 100))
+
+    # ---------------- RECOMMENDATIONS ---------------- #
+
+    st.subheader("🩺 Health Recommendation")
+
+    if prediction == 1:
+        st.warning("""
+        ⚠️ High risk detected. Please consider:
+        - Consult a cardiologist immediately  
+        - Reduce cholesterol intake  
+        - Maintain regular exercise  
+        - Monitor blood pressure regularly  
+        """)
+    else:
+        st.info("""
+        ✅ Low risk. Maintain healthy lifestyle:
+        - Regular physical activity  
+        - Balanced diet  
+        - Routine health checkups  
+        """)
