@@ -40,7 +40,7 @@ This project is a Machine Learning-based web application that predicts the risk 
 
 ## 🌐 Live Demo
 
-👉 [Click here to view the app](YOUR_STREAMLIT_LINK)
+👉 [Click here to view the app](https://disease-prediction-app-2034.streamlit.app/)
 
 ---
 
