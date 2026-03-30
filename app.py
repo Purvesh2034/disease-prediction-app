@@ -35,7 +35,8 @@ model.fit(X, y)
 st.sidebar.header("🧾 Enter Patient Details")
 
 age = st.sidebar.slider("Age", 20, 80, 40)
-sex = st.sidebar.selectbox("Sex", [0, 1])
+sex_label = st.sidebar.selectbox("Sex", ["Male", "Female"])
+sex = 1 if sex_label == "Male" else 0
 cp = st.sidebar.selectbox("Chest Pain Type", [0, 1, 2, 3])
 trestbps = st.sidebar.slider("Resting BP", 80, 200, 120)
 chol = st.sidebar.slider("Cholesterol", 100, 400, 200)
