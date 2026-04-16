@@ -13,18 +13,23 @@ st.markdown("### Smart Healthcare using Machine Learning")
 # Load dataset
 df = pd.read_csv("heart.csv")
 
-# Encode categorical
+# Drop unnecessary columns
+df = df.drop(columns=['id'], errors='ignore')
+
+# Encode categorical columns
+from sklearn.preprocessing import LabelEncoder
 le = LabelEncoder()
+
 for col in df.columns:
     if df[col].dtype == 'object':
         df[col] = le.fit_transform(df[col])
 
-# Target
-df['num'] = df['num'].apply(lambda x: 1 if x > 0 else 0)
-
-# Features
+# Split data
 X = df.drop('num', axis=1)
 y = df['num']
+
+# Fill missing values
+X = X.fillna(X.mean())
 
 # Train model
 model = RandomForestClassifier()
