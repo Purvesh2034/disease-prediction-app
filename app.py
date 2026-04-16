@@ -10,7 +10,7 @@ st.set_page_config(page_title="Disease Prediction App", layout="wide")
 
 # Title
 st.title("🩺 Disease Prediction System")
-st.markdown("### Enter Patient Details Below")
+st.markdown("### Enter Patient Details")
 
 # Sidebar inputs
 st.sidebar.header("Patient Information")
